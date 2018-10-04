@@ -99,10 +99,20 @@ function checkUser(user) {
 function login(user, pwrd) {
     db.ref("/users").child(user).once('value', function(snapshot) {
         if (snapshot.exists() && snapshot.val().pwrd == pwrd) {
-            console.log("user and pwrd are right");            
-        }
+            console.log("user and pwrd are right");     
+            createGame();       
+        } else { alert("please enter correct username and password");}
         
     })
+};// end login function
+function createGame() {
+    $(document.body).html("");
+    var a = $("<div />", {
+        class: "jumbotron jumbotron-fluid game"
+    }).appendTo($(document.body));
+    var b = $("<div />", {
+        class: "container"
+    }).html($("<div />", {class: "row"}).html($("<div />", {class: "col col-lg-12"}).html($("<p />", {class: "lead text=center"}).text("welcome")))).appendTo(a);
 };
 // start firebase 
 var config = {
