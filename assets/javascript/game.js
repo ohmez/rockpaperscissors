@@ -64,10 +64,26 @@ $(document).on("click", ".newUser",function() {
 });
 $(document).on("click", ".reUser",function() {
     event.preventDefault();
-    console.log($("#userName").val().trim());
-    console.log($("#userPassw").val().trim());
-    $("#userName").val('');
-    $("#userPassw").val('');
+    var a = JSON.stringify($("#userName").val().trim());
+    var b = JSON.stringify($("#userPassw").val().trim());
+    if (a.length < 3 && b.length < 3) {
+        alert("you must enter a username and password");
+    }
+    if (a.length < 3 && b.length > 2) {
+        alert("you must enter a username");
+    }
+    if (b.length < 3 && a.length > 2) {
+        alert("you must enter a password");
+    }
+    if (a.length > 2 && b.length > 2) {
+        // console.log(db.ref("/").val());
+        u = $("#userName").val().trim();
+        p = $("#userPassw").val().trim();
+        $("#userName").val('');
+        $("#userPassw").val('');
+        console.log('before check');
+        login("/"+u,p);
+    } 
 });// end re user login on click - currently no function for action. 
 
 // working function to check if username already exists
@@ -79,6 +95,15 @@ function checkUser(user) {
         else {db.ref("/users").child("/"+u).set({pwrd: p});}
     })
 };// end checkUser function
+//start function to check password if user exists
+function login(user, pwrd) {
+    db.ref("/users").child(user).once('value', function(snapshot) {
+        if (snapshot.exists() && snapshot.val().pwrd == pwrd) {
+            console.log("user and pwrd are right");            
+        }
+        
+    })
+};
 // start firebase 
 var config = {
     apiKey: "AIzaSyCDzv0VqDcyr9Q2T3ARcyVPiI3Uyr3aFI4",
