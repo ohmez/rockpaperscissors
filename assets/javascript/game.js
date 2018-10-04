@@ -76,7 +76,7 @@ function checkUser(user) {
         if (snapshot.exists()) {
             alert("this user already exists, please make a new one or refresh and login");
         }
-        else {db.ref("/users").child("/"+u).push(p);}
+        else {db.ref("/users").child("/"+u).set({pwrd: p});}
     })
 };// end checkUser function
 // start firebase 
