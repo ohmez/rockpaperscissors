@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Rock Paper Scissors BB</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="assets/javascript/game.js"></script>
+</head>
+<body>
+    <div class="jumbotron jumbotron-fluid game" style="padding: 0;">
+        <button style="float:left;"><a href="index.html">Log Out</a></button>
+        <h1 class="display-3 text-center">battle time</h1><br>
+        <h2 class="display-4 text-center"><span id="stats">here will be stats</span></h2><br>
+        <p class="lead text-center" id="info" style="text-transform: lowercase;"><span id="connected-viewers">0</span> user(s) connected</p>
+    </div>
+</div>    
+<div class="container-fluid">
+    <div class="row w-100">
+        <div class="col bg-dark ml-1">
+                <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src="https://media1.giphy.com/media/l49JLqDArrAoVy4wM/giphy_s.gif" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Make Your Move</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" id="rock">rock</li>
+                                <li class="list-group-item" id="paper">paper</li>
+                                <li class="list-group-item" id="scissors">scissors</li>
+                            </ul>
+                        </div>
+                </div>
+        </div>
+        <div class="col bg-secondary">
+        animation area
+        </div>
+        <div class="col bg-dark mr-1">
+                <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src="https://media0.giphy.com/media/3o6ZsX2OZJ8G3Tec6Y/giphy_s.gif" alt="Card image cap">
+                        <!-- <div class="card-body"> -->
+                            <h5 class="card-title">Chat area</h5>
+                            <div class="card" id="chatDiv">
+                                    <ul class="list-group list-group-flush" id="chatArea">
+                                      <li>cras justo odio</li>
+                                      <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat doloribus natus minus, maiores possimus consequatur. Amet officiis, iste, error modi ipsam officia maiores veniam deserunt minima voluptatem, est ut ipsum.Porro eligendi mollitia sit earum? Sit id minus omnis repellat perferendis nesciunt consectetur error suscipit, illum, nobis, quos amet incidunt laboriosam iusto ad modi eum dignissimos ea! Eum, quae suscipit!</li>
+                                      <li>Vestibulum at eros</li>
+                                      <li>Vestibulum at eros</li>
+                                      <li>Vestibulum at eros</li>
+                                      <li>Vestibulum at eros</li>
+                                      <li>Vestibulum at eros</li>
+                                      <li>Vestibulum at eros</li>
+                                    </ul>
+                                  </div>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
+                                <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button" id="sendChat">Send</button>
+                                </div>
+                            </div>
+                        <!-- </div> -->
+                      </div>
+    </div>
+</div>
+</body>
+</html>

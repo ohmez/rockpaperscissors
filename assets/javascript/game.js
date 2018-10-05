@@ -1,6 +1,8 @@
 // step one of the game going into login. 
 $(document).ready(function(event) {
-update();
+setInterval(update(), 6000);
+console.log(sessionStorage);
+console.log("this triggered");
 });
 $(document).on("click", "#signU", function() {
     $(".start").hide();
@@ -20,7 +22,7 @@ $(document).on("click", "#signU", function() {
     a.append(b);
     $(document.body).append(a);
     update();
-});
+});// end singup function for new user populates new login content
 $(document).on("click", "#login", function() {
     $(".start").hide(); 
     var a = $("<div />", {
@@ -38,7 +40,7 @@ $(document).on("click", "#login", function() {
     a.append(b);
     $(document.body).append(a);
     update();
-});
+});// end on click function for login populates login content
 $(document).on("click", ".newUser",function() {
     event.preventDefault();
     var a = JSON.stringify($("#userName").val().trim());
@@ -53,15 +55,13 @@ $(document).on("click", ".newUser",function() {
         alert("you must enter a password");
     }
     if (a.length > 2 && b.length > 2) {
-        // console.log(db.ref("/").val());
         u = $("#userName").val().trim();
         p = $("#userPassw").val().trim();
         $("#userName").val('');
         $("#userPassw").val('');
-        console.log('before brokenstuff');
-        checkUser("/"+u);        
+        checkUser("/"+u, p);        
     } 
-});
+});// end new user sign up click function checks input. 
 $(document).on("click", ".reUser",function() {
     event.preventDefault();
     var a = JSON.stringify($("#userName").val().trim());
@@ -76,95 +76,102 @@ $(document).on("click", ".reUser",function() {
         alert("you must enter a password");
     }
     if (a.length > 2 && b.length > 2) {
-        // console.log(db.ref("/").val());
         u = $("#userName").val().trim();
         p = $("#userPassw").val().trim();
         $("#userName").val('');
         $("#userPassw").val('');
-        console.log('before check');
         login("/"+u,p);
+        sessionStorage.l = "/"+u;
     } 
-});// end re user login on click - currently no function for action. 
-
+});// end re user login on click - checks input 
+function updateUser(user, id, password) {
+    db.ref("/users").child(user).set({pwrd: password, id: id});
+    
+};
 // working function to check if username already exists
-function checkUser(user) {
+function checkUser(user, password) {
     db.ref("/users").child(user).once('value', function(snapshot) {
         if (snapshot.exists()) {
             alert("this user already exists, please make a new one or refresh and login");
         }
-        else {db.ref("/users").child("/"+u).set({pwrd: p});}
-    })
-};// end checkUser function
-//start function to check password if user exists
-function login(user, pwrd) {
-    db.ref("/users").child(user).once('value', function(snapshot) {
-        if (snapshot.exists() && snapshot.val().pwrd == pwrd) {
-            console.log("user and pwrd are right");     
-            createGame();       
-        } else { alert("please enter correct username and password");}
+        else {
+            db.ref("/users").child("/"+u).set({pwrd: p, id: sessionStorage.id});
+            createGame();
+            sessionStorage.l = "/"+user;
+            sessionStorage.p = password;   }
+            
+        })
+    };// end checkUser function
+    //start function to check password if user exists
+    function login(user, password) {
+        db.ref("/users").child(user).once('value', function(snapshot) {
+            if (snapshot.exists() && snapshot.val().pwrd == password) {
+                db.ref("/users").child(user).set({pwrd: password, id: sessionStorage.id});
+                createGame(); 
+                sessionStorage.l = "/"+user;
+                sessionStorage.p = password;      
+            } else { alert("please enter correct username and password");}
+        })
+    };// end login function
+    function createGame() {
+        window.location = ("game.html");
         
-    })
-};// end login function
-function createGame() {
-    $(document.body).html("");
-    var a = $("<div />", {
-        class: "jumbotron jumbotron-fluid game"
-    }).appendTo($(document.body));
-    var b = $("<div />", {
-        class: "container"
-    }).html($("<div />", {class: "row"}).html($("<div />", {class: "col col-lg-12"}).html($("<p />", {class: "lead text=center"}).text("welcome")))).appendTo(a);
-};
-// start firebase 
-var config = {
-    apiKey: "AIzaSyCDzv0VqDcyr9Q2T3ARcyVPiI3Uyr3aFI4",
-    authDomain: "rpsbb-7767f.firebaseapp.com",
-    databaseURL: "https://rpsbb-7767f.firebaseio.com",
-    projectId: "rpsbb-7767f",
-    storageBucket: "rpsbb-7767f.appspot.com",
-    messagingSenderId: "625964534953"
     };
-firebase.initializeApp(config);
-var db = firebase.database();
-var users = db.ref("/users");
-db.ref().on("value", function(snap) {
-    console.log('this is from database existing')
-    console.log(snap.val());
-});
-// start current connections counter
-var connectionsRef = db.ref("/connections");
-var connectedRef = db.ref(".info/connected");
-connectedRef.on("value", function(snap) {
-        // If they are connected..
-        if (snap.val()) {
-            // Add user to the connections list.
-            var con = connectionsRef.push(true);
-            // Remove user from the connection list when they disconnect.
-            con.onDisconnect().remove();
-        }
-});
-// When first loaded or when the connections list changes...
-connectionsRef.on("value", function(snap) {
-    // Display the viewer count in the html.
-    // The number of online users is the number of children in the connections list.
-    $("#connected-viewers").text(snap.numChildren());
-});
-// end connections counter
-//start function to update connections on html change
-function update() {
+    // start firebase 
+    var config = {
+        apiKey: "AIzaSyCDzv0VqDcyr9Q2T3ARcyVPiI3Uyr3aFI4",
+        authDomain: "rpsbb-7767f.firebaseapp.com",
+        databaseURL: "https://rpsbb-7767f.firebaseio.com",
+        projectId: "rpsbb-7767f",
+        storageBucket: "rpsbb-7767f.appspot.com",
+        messagingSenderId: "625964534953"
+    };
+    firebase.initializeApp(config);
+    var db = firebase.database();
+    var users = db.ref("/users");
+    db.ref().on("value", function(snap) {
+        // this runs if the database exists or changes (i think if changes)
+    });
+    // start current connections counter
+    var playerRef = db.ref("/players/player");
+    var connectionsRef = db.ref("/connections");
+    var connectedRef = db.ref(".info/connected");
+    //below is testing because firebase is fukin hard and we haven't learned enough to do this
+    playerRef.on("child_added", function(childSnap, prevKey) {
+        // console.log("first is child snap");
+        // console.log(childSnap.key);
+        // sessionStorage.id = childSnap.key;
+        // console.log("then prevkey");
+        // console.log(prevKey);
+    })
     connectedRef.on("value", function(snap) {
         // If they are connected..
         if (snap.val()) {
             // Add user to the connections list.
             var con = connectionsRef.push(true);
+            var player = playerRef.push(true);
             // Remove user from the connection list when they disconnect.
+            player.onDisconnect().remove();
+            console.log('below is player');
+            console.log(player.key);
+            sessionStorage.id = player.key;
             con.onDisconnect().remove();
+            updateUser(sessionStorage.l, sessionStorage.id, sessionStorage.p);
         }
-});
-// When first loaded or when the connections list changes...
-connectionsRef.on("value", function(snap) {
-    // Display the viewer count in the html.
-    // The number of online users is the number of children in the connections list.
-    $("#connected-viewers").text(snap.numChildren());
-});
-};
-// end function update. 
+    });
+    // When first loaded or when the connections list changes...
+    connectionsRef.on("value", function(snap) {
+        // Display the viewer count in the html.
+        // The number of online users is the number of children in the connections list.
+        $("#connected-viewers").text(snap.numChildren());
+    });
+    // end connections counter
+    //start function to update connections on html change
+    function update() {
+        connectionsRef.on("value", function(snap) {
+            // Display the viewer count in the html.
+            // The number of online users is the number of children in the connections list.
+            $("#connected-viewers").text(snap.numChildren());
+        });
+    };
+    // end function update. 

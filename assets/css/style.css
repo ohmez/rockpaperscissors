@@ -1,3 +1,27 @@
 body {
     text-transform: capitalize;
-};
+}
+div#chatDiv {
+    max-height: 206px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    width: 17rem;
+}
+li {
+    position: relative;
+    display:block;
+    margin-bottom: -1px;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.125);
+}
+@media(max-width:400px) {
+    img {
+        width: 23vw;
+        height: auto;
+    }
+}
+a {
+    text-decoration: none;
+    color: black;
+}
