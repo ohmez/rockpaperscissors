@@ -1,4 +1,3 @@
-
 // start firebase 
 var config = {
     apiKey: "AIzaSyCDzv0VqDcyr9Q2T3ARcyVPiI3Uyr3aFI4",
@@ -11,34 +10,19 @@ var config = {
 firebase.initializeApp(config);
 var db = firebase.database();
 var users = db.ref("/users");
-db.ref().on("value", function (snap) {
-    // this runs if the database exists or changes (i think if changes)
-});
 // start current connections counter
-var playerRef = db.ref("/players/player");
 var connectionsRef = db.ref("/connections");
 var connectedRef = db.ref(".info/connected");
 var p1 = db.ref("player1");
 var p2 = db.ref("player2");
-//below is testing because firebase is fukin hard and we haven't learned enough to do this
-playerRef.on("child_added", function (childSnap, prevKey) {
-    // console.log("first is child snap");
-    // console.log(childSnap.key);
-    // sessionStorage.id = childSnap.key;
-    // console.log("then prevkey");
-    // console.log(prevKey);
-})
+// start connection functions
 connectedRef.on("value", function (snap) {
     // If they are connected..
     if (snap.val()) {
         // Add user to the connections list.
         var con = connectionsRef.push(true);
-        var player = playerRef.push(true);
         // Remove user from the connection list when they disconnect.
-        player.onDisconnect().remove();
-        console.log('below is player');
-        console.log(player.key);
-        sessionStorage.id = player.key;
+        sessionStorage.id = con.key;
         con.onDisconnect().remove();
         updateUser(sessionStorage.l, sessionStorage.id, sessionStorage.p, sessionStorage.w);
     }
@@ -57,18 +41,13 @@ db.ref().on("value", function(snap) {
         // run guess check function here 
         checkGuess();
     }
-});
-p2.on("value", function(snap) {
-    if (snap.child('guess').exists()){
-        console.log("player 2 guess ready");
-    }
-});
-// step one of the game going into login. 
+});// end listener for guesses to run the match
+//start doc.ready's and doc.on"clicks"
 $(document).ready(function (event) {
-    // setInterval(update(), 6000);
     console.log(sessionStorage);
     
 });
+// step one of the game going into login. 
 $(document).on("click", "#signU", function () {
     $(".start").hide();
     // $(".signup").show();
@@ -152,17 +131,25 @@ $(document).on("click", ".click", function () {
     console.log($(this)[0].id);
     $(this).addClass("clicked").removeClass("click");
     $(".click").hide();
+    $("#moveText").html("your move");
+    $("#moveInfo").html("waiting for opponents move")
     db.ref("player"+sessionStorage.playerNum).set({ true: true, guess: $(this)[0].id })
 });
+function resetMatch() {
+    $("#moveText").html("make your move");
+    $("#moveInfo").html("");
+    $(".clicked").addClass("click").removeClass("clicked"); 
+    $(".click").show();
+};
 function updateWins(user) {
     db.ref().once("value").then(function (snap) {
         db.ref("player1").child("guess").set("none");
         db.ref("player2").child("guess").set("none");
         newWins = sessionStorage.w;
         db.ref().child("users").child(user).child("wins").set(newWins);
-
     });
-};
+    resetMatch();
+};// end function to update wins to server; called in checkGuess()
 function checkGuess() {
 db.ref().once("value").then(function (snap) {
 var a = snap.child("player1").child("guess").val();
@@ -304,7 +291,7 @@ var b = snap.child("player2").child("guess").val();
         }
     }// end complete cycle of guess comparison 3
 });
-};
+};// end guess check function called in database listener 
 function checkplayer1() {
     db.ref().once("value").then(function (snap) {
         var d = snap.child("player2").val();
@@ -325,8 +312,7 @@ function checkplayer1() {
 function updateUser(user, id, password, wins) {
     db.ref("/users").child(user).set({ pwrd: password, id: id, wins: wins });
 
-};// updates user; this was for doing multiplayer before realizing difficulty of no limit.
-// working function to check if username already exists
+};// updates user; this pushes data to the server when server connections change. 
 function checkUser(user, password) {
     db.ref("/users").child(user).once('value', function (snapshot) {
         if (snapshot.exists()) {
@@ -342,8 +328,7 @@ function checkUser(user, password) {
         }
 
     })
-};// end checkUser function
-//start function to check password if user exists
+};// end checkUser function for signing up for new users.
 function login(user, password) {
     db.ref("/users").child(user).once('value', function (snapshot) {
         if (snapshot.exists() && snapshot.val().pwrd == password) {
@@ -355,17 +340,14 @@ function login(user, password) {
             sessionStorage.w = snapshot.child("wins").val();
         } else { alert("please enter correct username and password"); }
     })
-};// end login function
+};// end login function to check password if user exists
 function createGame() {
     window.location = ("game.html");
-
-};
-//start function to update connections on html change
+};// end function to create game, currently moves to new html page, unsure if i want to generate html or not dynamicly
 function update() {
     connectionsRef.on("value", function (snap) {
         // Display the viewer count in the html.
         // The number of online users is the number of children in the connections list.
         $("#connected-viewers").text(snap.numChildren());
     });
-};
-    // end function update. 
+};// end function update. html change
