@@ -40,7 +40,7 @@ connectedRef.on("value", function (snap) {
         console.log(player.key);
         sessionStorage.id = player.key;
         con.onDisconnect().remove();
-        updateUser(sessionStorage.l, sessionStorage.id, sessionStorage.p);
+        updateUser(sessionStorage.l, sessionStorage.id, sessionStorage.p, sessionStorage.w);
     }
     // When first loaded or when the connections list changes...
     connectionsRef.on("value", function (snap) {
@@ -48,22 +48,26 @@ connectedRef.on("value", function (snap) {
         // The number of online users is the number of children in the connections list.
         $("#connected-viewers").text(snap.numChildren());
     });
-    // end connections counter
+});// end connections counter
+db.ref().on("value", function(snap) {
+    var a = snap.child("player1").child("guess").exists();
+    var b = snap.child("player2").child("guess").exists();
+    if (a && b){
+        console.log("player 1 and 2 guess ready");
+        // run guess check function here 
+        checkGuess();
+    }
 });
-db.ref("player1").once("value").then(function (snap) {
-    var a = snap.exists();
-    if(snap.val() == false) {
-        console.log("player1 doesn't exist yet.")
+p2.on("value", function(snap) {
+    if (snap.child('guess').exists()){
+        console.log("player 2 guess ready");
     }
 });
 // step one of the game going into login. 
 $(document).ready(function (event) {
-    setInterval(update(), 6000);
+    // setInterval(update(), 6000);
     console.log(sessionStorage);
-    console.log("this triggered");
-    if (db.ref("player1") == false) {
-        alert("no player 1");
-    }
+    
 });
 $(document).on("click", "#signU", function () {
     $(".start").hide();
@@ -142,29 +146,184 @@ $(document).on("click", ".reUser", function () {
         $("#userName").val('');
         $("#userPassw").val('');
         login("/" + u, p);
-        sessionStorage.l = "/" + u;
     }
 });// end re user login on click - checks input 
-$(document).on("click", ".move", function () {
+$(document).on("click", ".click", function () {
     console.log($(this)[0].id);
-    $(this).removeClass("click").addClass("clicked")
+    $(this).addClass("clicked").removeClass("click");
     $(".click").hide();
-    db.ref("player1").set({ true: true, guess: $(this)[0].id })
+    db.ref("player"+sessionStorage.playerNum).set({ true: true, guess: $(this)[0].id })
 });
+function updateWins(user) {
+    db.ref().once("value").then(function (snap) {
+        db.ref("player1").child("guess").set("none");
+        db.ref("player2").child("guess").set("none");
+        newWins = sessionStorage.w;
+        db.ref().child("users").child(user).child("wins").set(newWins);
+
+    });
+};
+function checkGuess() {
+db.ref().once("value").then(function (snap) {
+var a = snap.child("player1").child("guess").val();
+var b = snap.child("player2").child("guess").val();
+    if (a == 'rock') {
+        if (b == 'scissors') {
+        console.log("guess 1 wins");
+            if (sessionStorage.playerNum == '1') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                wins = wins +1;
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }if (sessionStorage.playerNum == '2') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }
+        }
+        if (b == 'paper') {
+        console.log("guess 2 wins");
+            if (sessionStorage.playerNum == '2') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                wins = wins +1;
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }if (sessionStorage.playerNum == '1') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }
+        }
+        if (b == 'rock') {
+        console.log("nobody wins");
+        if (sessionStorage.playerNum == '1') {
+            // run update wins 
+            var wins = parseInt(sessionStorage.w);
+            wins = wins;
+            sessionStorage.w = wins; 
+            updateWins(sessionStorage.l);
+        }if (sessionStorage.playerNum == '2') {
+            // run update wins 
+            var wins = parseInt(sessionStorage.w);
+            sessionStorage.w = wins; 
+            updateWins(sessionStorage.l);}
+        }
+    }// end complete cycle of guess comparison 1
+    if (a == 'paper') {
+        if (b == 'rock') {
+        console.log("guess 1 wins");
+            if (sessionStorage.playerNum == '1') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                wins = wins +1;
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }if (sessionStorage.playerNum == '2') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }
+        }
+        if (b == 'scissors') {
+        console.log("guess 2 wins");
+            if (sessionStorage.playerNum == '2') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                wins = wins +1;
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }if (sessionStorage.playerNum == '1') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);}
+        }
+        if (b == 'paper') {
+        console.log("nobody wins");
+        if (sessionStorage.playerNum == '1') {
+            // run update wins 
+            var wins = parseInt(sessionStorage.w);
+            wins = wins;
+            sessionStorage.w = wins; 
+            updateWins(sessionStorage.l);
+        }if (sessionStorage.playerNum == '2') {
+            // run update wins 
+            var wins = parseInt(sessionStorage.w);
+            sessionStorage.w = wins; 
+            updateWins(sessionStorage.l);}
+        }
+    }// end complete cycle of guess comparison 2
+    if (a == 'scissors') {
+        if (b == 'paper') {
+        console.log("guess 1 wins");
+            if (sessionStorage.playerNum == '1') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                wins = wins +1;
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }if (sessionStorage.playerNum == '2') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }
+        }
+        if (b == 'rock') {
+        console.log("guess 2 wins");
+            if (sessionStorage.playerNum == '2') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                wins = wins +1;
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);
+            }if (sessionStorage.playerNum == '1') {
+                // run update wins 
+                var wins = parseInt(sessionStorage.w);
+                sessionStorage.w = wins; 
+                updateWins(sessionStorage.l);}
+        }
+        if (b == 'scissors') {
+        console.log("nobody wins");
+        if (sessionStorage.playerNum == '1') {
+            // run update wins 
+            var wins = parseInt(sessionStorage.w);
+            wins = wins;
+            sessionStorage.w = wins; 
+            updateWins(sessionStorage.l);
+        }if (sessionStorage.playerNum == '2') {
+            // run update wins 
+            var wins = parseInt(sessionStorage.w);
+            sessionStorage.w = wins; 
+            updateWins(sessionStorage.l);}
+        }
+    }// end complete cycle of guess comparison 3
+});
+};
 function checkplayer1() {
     db.ref().once("value").then(function (snap) {
+        var d = snap.child("player2").val();
         var a = snap.child("player1").val();
-        if (a == false){
-            p1.set(true);
+        if (d == false) {
+            if (a == false){
+                p1.set(true);
+                sessionStorage.playerNum = 1;
+            }
         }
-        var b = snap.child("player1").val();
-        if (b == true) {
+        if (d == false && a == true ) {
+            if (sessionStorage.playerNum == 1) {}
             p2.set(true);
-        }
+            sessionStorage.playerNum = 2;
+            }
     });
 };// end check for player 1 function
-function updateUser(user, id, password) {
-    db.ref("/users").child(user).set({ pwrd: password, id: id });
+function updateUser(user, id, password, wins) {
+    db.ref("/users").child(user).set({ pwrd: password, id: id, wins: wins });
 
 };// updates user; this was for doing multiplayer before realizing difficulty of no limit.
 // working function to check if username already exists
@@ -174,10 +333,12 @@ function checkUser(user, password) {
             alert("this user already exists, please make a new one or refresh and login");
         }
         else {
-            db.ref("/users").child("/" + u).set({ pwrd: p, id: sessionStorage.id });
+            db.ref("/users").child("/" + u).set({ pwrd: p, id: sessionStorage.id, wins: '0' });
             createGame();
-            sessionStorage.l = "/" + user;
+            checkplayer1();
+            sessionStorage.l = user;
             sessionStorage.p = password;
+            sessionStorage.w = 0;
         }
 
     })
@@ -186,11 +347,12 @@ function checkUser(user, password) {
 function login(user, password) {
     db.ref("/users").child(user).once('value', function (snapshot) {
         if (snapshot.exists() && snapshot.val().pwrd == password) {
-            db.ref("/users").child(user).set({ pwrd: password, id: sessionStorage.id });
+            db.ref("/users").child(user).set({ pwrd: password, id: sessionStorage.id, wins:snapshot.child("wins").val()});
             createGame();
             checkplayer1();
-            sessionStorage.l = "/" + user;
+            sessionStorage.l = user;
             sessionStorage.p = password;
+            sessionStorage.w = snapshot.child("wins").val();
         } else { alert("please enter correct username and password"); }
     })
 };// end login function
