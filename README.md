@@ -9,4 +9,5 @@
     2. [game html file](https://github.com/ohmez/rockpaperscissors/blob/master/game.html)
     3. [css sheet](https://github.com/ohmez/rockpaperscissors/blob/master/assets/css/style.css)
     4. [javascript file](https://github.com/ohmez/rockpaperscissors/blob/master/assets/javascript/game.js)
-
+http://github.com - automatic!
+[GitHub](http://github.com)
