@@ -13,8 +13,8 @@ var users = db.ref("/users");
 // start current connections counter
 var connectionsRef = db.ref("/connections");
 var connectedRef = db.ref(".info/connected");
-var p1 = db.ref("player1");
-var p2 = db.ref("player2");
+var p1 = db.ref("/player1");
+var p2 = db.ref("/player2");
 var chats = db.ref("/chat");
 // start connection functions
 connectedRef.on("value", function (snap) {
@@ -25,6 +25,8 @@ connectedRef.on("value", function (snap) {
         // Remove user from the connection list when they disconnect.
         con.onDisconnect().remove().then(function() {
             chats.remove();
+            // p1.child("guess").remove();
+            // p2.child("guess").remove();
         });
         updateUser(sessionStorage.l, sessionStorage.p, sessionStorage.w);
         checkplayers();        
@@ -141,13 +143,12 @@ $(document).on("click", ".reUser", function () {
     }
 });// end re user login on click - checks input 
 $(document).on("click", ".click", function () {
-    console.log($(this)[0].id);
     $(this).addClass("clicked").removeClass("click");
     $(".click").hide();
     $("#moveText").html("your move");
     $("#moveInfo").html("waiting for opponents move");
     if($(this)[0].id == 'rock') {
-        $("#guessImg").attr("src", "assets/images/rock2.jpg");
+        $("#guessImg").attr("src", "assets/images/rock.jpg");
     }
     if($(this)[0].id == 'paper') {
         $("#guessImg").attr("src", "assets/images/paper.jpg");
@@ -163,14 +164,30 @@ $(document).on("click", "#sendChat", function () {
     $("input#message").val("");
 });
 function resetMatch() {
-    $("#moveText").html("make your next move");
-    $("#moveInfo").html("");
-    $(".clicked").addClass("click").removeClass("clicked"); 
-    $(".click").show();
-    $("#guessImg").attr("src", "https://media0.giphy.com/media/3o6ZsX2OZJ8G3Tec6Y/giphy_s.gif");
+    setTimeout(function(){
+        $("#moveText").html("make your next move");
+        $("#moveInfo").html("");
+        $(".clicked").addClass("click").removeClass("clicked"); 
+        $(".click").show();
+        $("#guessImg").attr("src", "https://media1.giphy.com/media/l49JLqDArrAoVy4wM/giphy_s.gif");
+        $(".fightZone").html("");
+
+    }, 9000);
 };
 function updateWins(user) {
     db.ref().once("value").then(function (snap) {
+        var a = snap.child("player1").child("guess").val();
+        var b = snap.child("player2").child("guess").val();
+        console.log(a);
+        console.log(b);
+        var imgA = $("<img>").attr({src: "assets/images/"+a+".jpg", style: "width: 10vw;"});
+        var imgB = $("<img>").attr({src: "assets/images/"+b+".jpg", style: "width: 10vw;"});
+        if (sessionStorage.playerNum == 1) {
+            $(".fightZone").append(imgA).append("<br>vs<br>").append(imgB);
+        }
+        if(sessionStorage.playerNum == 2) {
+            $(".fightZone").append(imgB).append("<br>vs<br>").append(imgA);
+        }
         db.ref("player1").child("guess").remove();
         db.ref("player2").child("guess").remove();
         newWins = sessionStorage.w;
@@ -180,20 +197,26 @@ function updateWins(user) {
 };// end function to update wins to server; called in checkGuess()
 function checkplayers() {
     db.ref().once("value", function(snap) {
+        // if (sessionStorage.playerNum == 1 || sessionStorage.playerNum == 2){return true}
         if (snap.child("player1").exists() && snap.child("player2").exists()){
             //do nothing
-            $(document.body).html("sorry we're full, refresh and try again");
+            $(document.body).html("sorry we're full, Wait just a second... well 5 actually");
+            setTimeout(function() {
+                window.location = ("index.html")
+            }, 8000);
         }// else create players
         if (!snap.child("player1").exists()) {
             var play1 = p1.push(true);
             var p1Key = play1.key;
             play1.onDisconnect().remove();
             sessionStorage.playerNum = 1;
+            return true
         } else if(!snap.child("player2").exists()) {
             if (sessionStorage.playerNum == 1) {}
+            else {
             var play2 = p2.push(true);
             play2.onDisconnect().remove();
-            sessionStorage.playerNum = 2;
+            sessionStorage.playerNum = 2;}
         }
     });
 };
@@ -203,138 +226,117 @@ var a = snap.child("player1").child("guess").val();
 var b = snap.child("player2").child("guess").val();
     if (a == 'rock') {
         if (b == 'scissors') {
-        console.log("guess 1 wins");
             if (sessionStorage.playerNum == '1') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 wins = wins +1;
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you won<br>");
                 updateWins(sessionStorage.l);
             }if (sessionStorage.playerNum == '2') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you lost<br>");
                 updateWins(sessionStorage.l);
             }
         }
         if (b == 'paper') {
-        console.log("guess 2 wins");
             if (sessionStorage.playerNum == '2') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 wins = wins +1;
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you won<br>");
                 updateWins(sessionStorage.l);
             }if (sessionStorage.playerNum == '1') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you lost<br>");
                 updateWins(sessionStorage.l);
             }
         }
         if (b == 'rock') {
-        console.log("nobody wins");
-        if (sessionStorage.playerNum == '1') {
             // run update wins 
-            var wins = parseInt(sessionStorage.w);
-            wins = wins;
-            sessionStorage.w = wins; 
             updateWins(sessionStorage.l);
-        }if (sessionStorage.playerNum == '2') {
-            // run update wins 
-            var wins = parseInt(sessionStorage.w);
-            sessionStorage.w = wins; 
-            updateWins(sessionStorage.l);}
-        }
+            $(".fightZone").append("you tied<br>"); 
+        }       
     }// end complete cycle of guess comparison 1
     if (a == 'paper') {
         if (b == 'rock') {
-        console.log("guess 1 wins");
             if (sessionStorage.playerNum == '1') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 wins = wins +1;
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you won<br>");
                 updateWins(sessionStorage.l);
             }if (sessionStorage.playerNum == '2') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
-                sessionStorage.w = wins; 
+                sessionStorage.w = wins;
+                $(".fightZone").append("you lost<br>");
                 updateWins(sessionStorage.l);
             }
         }
         if (b == 'scissors') {
-        console.log("guess 2 wins");
             if (sessionStorage.playerNum == '2') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 wins = wins +1;
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you won<br>");
                 updateWins(sessionStorage.l);
             }if (sessionStorage.playerNum == '1') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
-                sessionStorage.w = wins; 
+                sessionStorage.w = wins;
+                $(".fightZone").append("you lost<br>");
                 updateWins(sessionStorage.l);}
         }
         if (b == 'paper') {
-        console.log("nobody wins");
-        if (sessionStorage.playerNum == '1') {
             // run update wins 
-            var wins = parseInt(sessionStorage.w);
-            wins = wins;
-            sessionStorage.w = wins; 
             updateWins(sessionStorage.l);
-        }if (sessionStorage.playerNum == '2') {
-            // run update wins 
-            var wins = parseInt(sessionStorage.w);
-            sessionStorage.w = wins; 
-            updateWins(sessionStorage.l);}
+            $(".fightZone").append("you tied<br>"); 
         }
     }// end complete cycle of guess comparison 2
-    if (a == 'scissors') {
+    if (a == 'scissors') { 
         if (b == 'paper') {
-        console.log("guess 1 wins");
             if (sessionStorage.playerNum == '1') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 wins = wins +1;
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you won<br>"); 
                 updateWins(sessionStorage.l);
             }if (sessionStorage.playerNum == '2') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
-                sessionStorage.w = wins; 
+                sessionStorage.w = wins;
+                $(".fightZone").append("you lost<br>"); 
                 updateWins(sessionStorage.l);
             }
         }
         if (b == 'rock') {
-        console.log("guess 2 wins");
             if (sessionStorage.playerNum == '2') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 wins = wins +1;
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you won<br>"); 
                 updateWins(sessionStorage.l);
             }if (sessionStorage.playerNum == '1') {
                 // run update wins 
                 var wins = parseInt(sessionStorage.w);
                 sessionStorage.w = wins; 
+                $(".fightZone").append("you lost<br>");
                 updateWins(sessionStorage.l);}
         }
         if (b == 'scissors') {
-        console.log("nobody wins");
-        if (sessionStorage.playerNum == '1') {
             // run update wins 
-            var wins = parseInt(sessionStorage.w);
-            wins = wins;
-            sessionStorage.w = wins; 
             updateWins(sessionStorage.l);
-        }if (sessionStorage.playerNum == '2') {
-            // run update wins 
-            var wins = parseInt(sessionStorage.w);
-            sessionStorage.w = wins; 
-            updateWins(sessionStorage.l);}
+            $(".fightZone").append("you tied<br>"); 
         }
     }// end complete cycle of guess comparison 3
 });
