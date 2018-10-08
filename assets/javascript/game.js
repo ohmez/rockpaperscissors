@@ -147,13 +147,13 @@ $(document).on("click", ".click", function () {
     $("#moveText").html("your move");
     $("#moveInfo").html("waiting for opponents move");
     if($(this)[0].id == 'rock') {
-        $("#guessImg").attr("src", "assets/images/rock2.jpg")
+        $("#guessImg").attr("src", "assets/images/rock2.jpg");
     }
     if($(this)[0].id == 'paper') {
-        $("#guessImg").attr("src", "assets/images/paper.jpg")
+        $("#guessImg").attr("src", "assets/images/paper.jpg");
     }
     if($(this)[0].id == 'scissors') {
-        $("#guessImg").attr("src", "assets/images/scissors.jpg")
+        $("#guessImg").attr("src", "assets/images/scissors.jpg");
     }
     db.ref("player"+sessionStorage.playerNum).update({guess: $(this)[0].id });
 });
@@ -163,10 +163,11 @@ $(document).on("click", "#sendChat", function () {
     $("input#message").val("");
 });
 function resetMatch() {
-    $("#moveText").html("make your move");
+    $("#moveText").html("make your next move");
     $("#moveInfo").html("");
     $(".clicked").addClass("click").removeClass("clicked"); 
     $(".click").show();
+    $("#guessImg").attr("src", "https://media0.giphy.com/media/3o6ZsX2OZJ8G3Tec6Y/giphy_s.gif");
 };
 function updateWins(user) {
     db.ref().once("value").then(function (snap) {
