@@ -15,6 +15,7 @@ var connectionsRef = db.ref("/connections");
 var connectedRef = db.ref(".info/connected");
 var p1 = db.ref("player1");
 var p2 = db.ref("player2");
+var chats = db.ref("/chat");
 // start connection functions
 connectedRef.on("value", function (snap) {
     // If they are connected..
@@ -23,7 +24,9 @@ connectedRef.on("value", function (snap) {
         var con = connectionsRef.push(true);
         // Remove user from the connection list when they disconnect.
         sessionStorage.id = con.key;
-        con.onDisconnect().remove();
+        con.onDisconnect().remove().then(function() {
+            chats.remove();
+        });
         updateUser(sessionStorage.l, sessionStorage.id, sessionStorage.p, sessionStorage.w);
         checkplayers();        
     }
@@ -45,6 +48,14 @@ db.ref().on("value", function(snap) {
     var userWins = snap.child("users/"+sessionStorage.l).child("wins").val();
     $("#stats").html("<p> Current Wins: " + userWins +"</p>");
 });// end listener for guesses to run the match
+chats.on("value", function(snap) {
+    $("#chatArea").html("");
+    snap.forEach(function(childSnap) {
+        var val = childSnap.val();
+        console.log(val);
+        $("#chatArea").append("<li>" +val+ "</li>");
+    })
+});
 //start doc.ready's and doc.on"clicks"
 $(document).ready(function (event) {
     console.log(sessionStorage);
@@ -137,6 +148,11 @@ $(document).on("click", ".click", function () {
     $("#moveText").html("your move");
     $("#moveInfo").html("waiting for opponents move");
     db.ref("player"+sessionStorage.playerNum).update({guess: $(this)[0].id });
+});
+$(document).on("click", "#sendChat", function () {
+    event.preventDefault();
+    chats.push($("input#message").val());
+    $("input#message").val("");
 });
 function resetMatch() {
     $("#moveText").html("make your move");
