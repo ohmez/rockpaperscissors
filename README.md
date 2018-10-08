@@ -1,5 +1,5 @@
 # **Welcome to Rock Paper Scissors Showdown!**
-![rps log](/assets/images/home.jpg)
+![rps log](assets/images/home.jpg)
 Format: ![Alt Text](url)
 ## this is a **two** player online rock paper scissors game
 ## Your wins will be stored indefinitely as long as you can log back in
