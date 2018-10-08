@@ -146,6 +146,15 @@ $(document).on("click", ".click", function () {
     $(".click").hide();
     $("#moveText").html("your move");
     $("#moveInfo").html("waiting for opponents move");
+    if($(this)[0].id == 'rock') {
+        $("#guessImg").attr("src", "assets/images/rock2.jpg")
+    }
+    if($(this)[0].id == 'paper') {
+        $("#guessImg").attr("src", "assets/images/paper.jpg")
+    }
+    if($(this)[0].id == 'scissors') {
+        $("#guessImg").attr("src", "assets/images/scissors.jpg")
+    }
     db.ref("player"+sessionStorage.playerNum).update({guess: $(this)[0].id });
 });
 $(document).on("click", "#sendChat", function () {
