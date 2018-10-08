@@ -23,11 +23,10 @@ connectedRef.on("value", function (snap) {
         // Add user to the connections list.
         var con = connectionsRef.push(true);
         // Remove user from the connection list when they disconnect.
-        sessionStorage.id = con.key;
         con.onDisconnect().remove().then(function() {
             chats.remove();
         });
-        updateUser(sessionStorage.l, sessionStorage.id, sessionStorage.p, sessionStorage.w);
+        updateUser(sessionStorage.l, sessionStorage.p, sessionStorage.w);
         checkplayers();        
     }
     // When first loaded or when the connections list changes...
@@ -330,10 +329,10 @@ var b = snap.child("player2").child("guess").val();
     }// end complete cycle of guess comparison 3
 });
 };// end guess check function called in database listener 
-function updateUser(user, id, password, wins) {
+function updateUser(user, password, wins) {
     db.ref("/users").once("value", function (snap) {
         if(snap.child(user).exists()){
-            db.ref("/users").child(user).set({ pwrd: password, id: id, wins: wins });
+            db.ref("/users").child(user).set({ pwrd: password, wins: wins });
         }
 
     });
@@ -344,7 +343,7 @@ function checkUser(user, password) {
             alert("this user already exists, please make a new one or refresh and login");
         }
         else {
-            db.ref("/users").child("/" + u).set({ pwrd: p, id: sessionStorage.id, wins: '0' });
+            db.ref("/users").child("/" + u).set({ pwrd: p, wins: '0' });
             createGame();
             sessionStorage.l = user;
             sessionStorage.p = password;
@@ -356,7 +355,7 @@ function checkUser(user, password) {
 function login(user, password) {
     db.ref("/users").child(user).once('value', function (snapshot) {
         if (snapshot.exists() && snapshot.val().pwrd == password) {
-            db.ref("/users").child(user).set({ pwrd: password, id: sessionStorage.id, wins:snapshot.child("wins").val()});
+            db.ref("/users").child(user).set({ pwrd: password, wins:snapshot.child("wins").val()});
             createGame();
             sessionStorage.l = user;
             sessionStorage.p = password;
