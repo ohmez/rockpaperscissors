@@ -5,8 +5,8 @@
 ### Please log out or close your window when finished playing so others can test/join
 
 ### Index
-    1. [initial html file](index.html)
-    2. [game html file](game.html)
-    3. [css sheet](assets/css/style.css)
-    4. [javascript file](assets/javascript/game.js)
+    1. [initial html file](https://github.com/ohmez/rockpaperscissors/blob/master/index.html)
+    2. [game html file](https://github.com/ohmez/rockpaperscissors/blob/master/game.html)
+    3. [css sheet](https://github.com/ohmez/rockpaperscissors/blob/master/assets/css/style.css)
+    4. [javascript file](https://github.com/ohmez/rockpaperscissors/blob/master/assets/javascript/game.js)
 
