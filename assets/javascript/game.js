@@ -25,6 +25,7 @@ connectedRef.on("value", function (snap) {
         sessionStorage.id = con.key;
         con.onDisconnect().remove();
         updateUser(sessionStorage.l, sessionStorage.id, sessionStorage.p, sessionStorage.w);
+        checkplayers();        
     }
     // When first loaded or when the connections list changes...
     connectionsRef.on("value", function (snap) {
@@ -41,6 +42,8 @@ db.ref().on("value", function(snap) {
         // run guess check function here 
         checkGuess();
     }
+    var userWins = snap.child("users/"+sessionStorage.l).child("wins").val();
+    $("#stats").html("<p> Current Wins: " + userWins +"</p>");
 });// end listener for guesses to run the match
 //start doc.ready's and doc.on"clicks"
 $(document).ready(function (event) {
@@ -132,8 +135,8 @@ $(document).on("click", ".click", function () {
     $(this).addClass("clicked").removeClass("click");
     $(".click").hide();
     $("#moveText").html("your move");
-    $("#moveInfo").html("waiting for opponents move")
-    db.ref("player"+sessionStorage.playerNum).set({ true: true, guess: $(this)[0].id })
+    $("#moveInfo").html("waiting for opponents move");
+    db.ref("player"+sessionStorage.playerNum).update({guess: $(this)[0].id });
 });
 function resetMatch() {
     $("#moveText").html("make your move");
@@ -143,13 +146,32 @@ function resetMatch() {
 };
 function updateWins(user) {
     db.ref().once("value").then(function (snap) {
-        db.ref("player1").child("guess").set("none");
-        db.ref("player2").child("guess").set("none");
+        db.ref("player1").child("guess").remove();
+        db.ref("player2").child("guess").remove();
         newWins = sessionStorage.w;
         db.ref().child("users").child(user).child("wins").set(newWins);
     });
     resetMatch();
 };// end function to update wins to server; called in checkGuess()
+function checkplayers() {
+    db.ref().once("value", function(snap) {
+        if (snap.child("player1").exists() && snap.child("player2").exists()){
+            //do nothing
+            $(document.body).html("sorry we're full, refresh and try again");
+        }// else create players
+        if (!snap.child("player1").exists()) {
+            var play1 = p1.push(true);
+            var p1Key = play1.key;
+            play1.onDisconnect().remove();
+            sessionStorage.playerNum = 1;
+        } else if(!snap.child("player2").exists()) {
+            if (sessionStorage.playerNum == 1) {}
+            var play2 = p2.push(true);
+            play2.onDisconnect().remove();
+            sessionStorage.playerNum = 2;
+        }
+    });
+};
 function checkGuess() {
 db.ref().once("value").then(function (snap) {
 var a = snap.child("player1").child("guess").val();
@@ -292,26 +314,13 @@ var b = snap.child("player2").child("guess").val();
     }// end complete cycle of guess comparison 3
 });
 };// end guess check function called in database listener 
-function checkplayer1() {
-    db.ref().once("value").then(function (snap) {
-        var d = snap.child("player2").val();
-        var a = snap.child("player1").val();
-        if (d == false) {
-            if (a == false){
-                p1.set(true);
-                sessionStorage.playerNum = 1;
-            }
-        }
-        if (d == false && a == true ) {
-            if (sessionStorage.playerNum == 1) {}
-            p2.set(true);
-            sessionStorage.playerNum = 2;
-            }
-    });
-};// end check for player 1 function
 function updateUser(user, id, password, wins) {
-    db.ref("/users").child(user).set({ pwrd: password, id: id, wins: wins });
+    db.ref("/users").once("value", function (snap) {
+        if(snap.child(user).exists()){
+            db.ref("/users").child(user).set({ pwrd: password, id: id, wins: wins });
+        }
 
+    });
 };// updates user; this pushes data to the server when server connections change. 
 function checkUser(user, password) {
     db.ref("/users").child(user).once('value', function (snapshot) {
@@ -321,7 +330,6 @@ function checkUser(user, password) {
         else {
             db.ref("/users").child("/" + u).set({ pwrd: p, id: sessionStorage.id, wins: '0' });
             createGame();
-            checkplayer1();
             sessionStorage.l = user;
             sessionStorage.p = password;
             sessionStorage.w = 0;
@@ -334,10 +342,10 @@ function login(user, password) {
         if (snapshot.exists() && snapshot.val().pwrd == password) {
             db.ref("/users").child(user).set({ pwrd: password, id: sessionStorage.id, wins:snapshot.child("wins").val()});
             createGame();
-            checkplayer1();
             sessionStorage.l = user;
             sessionStorage.p = password;
             sessionStorage.w = snapshot.child("wins").val();
+            checkplayers();
         } else { alert("please enter correct username and password"); }
     })
 };// end login function to check password if user exists
