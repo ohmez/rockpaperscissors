@@ -1,5 +1,5 @@
-![rps log](assets/images/home.png)
-Format: ![Alt Text](# Welcome To Rock Paper Scissors)
+![Welcome to Rock Paper Scissors Showdown](assets/images/home.png "Welcome to Rock Paper Scissors Showdown")
+
 ## this is a **two** player online rock paper scissors game
 ## Your wins will be stored indefinitely as long as you can log back in
 ### Please log out or close your window when finished playing so others can test/join
